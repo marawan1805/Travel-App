@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "934067431026",
+    "project_id": "egypt-travel-app",
+    "storage_bucket": "egypt-travel-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934067431026:android:3aab5e7c6af660ade304eb",
+        "android_client_info": {
+          "package_name": "EgyptTravel.App"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "934067431026-rmuo8lb197toum1rgl64li9pfvfgo61t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzgbRoFW-8xDScxYs729sbQ0wyJSwsYqE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "934067431026-rmuo8lb197toum1rgl64li9pfvfgo61t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
