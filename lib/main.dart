@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import './services/comment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'theme.dart';
 import 'routes.dart' as app_routes;
 import './services/post_service.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
+import './services/authentication_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +24,7 @@ class App extends StatelessWidget {
       builder: (context, snapshot) {
         // Check for errors
         if (snapshot.hasError) {
-          print('errr is ${snapshot.error}');
+          print('error is ${snapshot.error}');
           return SomethingWentWrong();
         }
         // Once complete, show your application
@@ -31,6 +33,13 @@ class App extends StatelessWidget {
             providers: [
               Provider<PostService>(
                 create: (_) => PostService(FirebaseFirestore.instance),
+              ),
+              Provider<AuthenticationService>(
+                create: (_) =>
+                    AuthenticationService(auth.FirebaseAuth.instance),
+              ),
+              Provider<CommentService>(
+                create: (_) => CommentService(FirebaseFirestore.instance),
               ),
             ],
             child: MaterialApp(
@@ -51,6 +60,7 @@ class App extends StatelessWidget {
   }
 }
 
+
 class SomethingWentWrong extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -62,7 +72,6 @@ class SomethingWentWrong extends StatelessWidget {
   }
 }
 
-
 class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -73,4 +82,3 @@ class Loading extends StatelessWidget {
     );
   }
 }
-

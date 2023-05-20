@@ -8,6 +8,15 @@ class AuthenticationService {
 
   Stream<auth.User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
+  String getCurrentUserId() {
+    final auth.User? currentUser = _firebaseAuth.currentUser;
+    if (currentUser != null) {
+      return currentUser.uid;
+    } else {
+      throw Exception('No user is currently signed in');
+    }
+  }
+
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
   }
