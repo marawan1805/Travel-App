@@ -16,6 +16,7 @@ class PostDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController commentController = TextEditingController();
+  final AuthenticationService authService = Provider.of<AuthenticationService>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -89,13 +90,16 @@ class PostDetailScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 // Assuming you have access to the authorId
-                String authorId = "put_the_author_id_here";
+                String authorId = authService.getCurrentUserId();
+                String authorDispName = authService.getCurrentUser()?.displayName ?? '';
 
                 Comment comment = Comment(
                   id: '', // Firestore will auto-generate this
                   postId: post.id,
                   authorId: authorId,
                   content: commentController.text,
+                  dateTime: DateTime.now(),
+                  authorDisplayName: authorDispName,
                 );
 
                 await context.read<CommentService>().addComment(comment);

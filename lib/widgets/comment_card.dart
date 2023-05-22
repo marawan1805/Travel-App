@@ -11,7 +11,7 @@ class CommentCard extends StatelessWidget {
     return Card(
       child: ListTile(
         title: Text(comment.content),
-        // Display author's name here
+        subtitle: Text('${comment.authorDisplayName} • ${comment.dateTime}'), // Display author's name and date here
       ),
     );
   }
