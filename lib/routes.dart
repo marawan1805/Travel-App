@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import './screens/profile_screen.dart';
 import './screens/login_screen.dart';
 import './screens/signup_screen.dart';
 import './screens/home_screen.dart';
@@ -13,4 +15,5 @@ final Map<String, WidgetBuilder> routes = {
   '/post': (context) => PostDetailScreen(
       post: ModalRoute.of(context)!.settings.arguments as Post),
   '/create': (context) => CreatePostScreen(),
+  '/account': (context) => Profile(),
 };
