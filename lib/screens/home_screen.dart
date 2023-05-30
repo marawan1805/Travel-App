@@ -106,7 +106,7 @@ class HomeScreen extends StatelessWidget {
           ListTile(
             title: Text('Settings'),
             onTap: () {
-              Navigator.of(context).pushNamed('/login');
+              Navigator.of(context).pushNamed('/settings');
             },
           ),
         ],

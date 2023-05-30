@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:travel_app/widgets/image_swapper.dart';
+
+import '../widgets/avatar_button.dart';
 import '../models/user.dart';
+import '../models/post.dart';
 import '../services/authentication_service.dart';
+import '../services/post_service.dart';
 
 class Profile extends StatelessWidget {
   @override
@@ -10,37 +15,25 @@ class Profile extends StatelessWidget {
     final User user = authService.getCurrentUser()!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Profile"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () {
-              Navigator.pushNamed(context, '/edit-profile');
-            },
-          )
-        ],
-      ),
-      body: ListView(
-        children: <Widget>[
-          _buildAvatar(context, user),
-          _buildUserInfo(user),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAvatar(BuildContext context, User user) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, '/edit-profile');
-      },
-      child: Padding(
-        padding: EdgeInsets.all(20),
-        child: Center(
-          child: CircleAvatar(
-            radius: 50,
-            backgroundImage: NetworkImage(user.imageURL),
+        appBar: AppBar(
+          title: Text(user!.displayName),
+        ),
+        body: Container(
+          margin: EdgeInsets.symmetric(vertical: 30),
+          child: Center(
+            child: Column(
+              children: [
+                AvatarButton(
+                    onTap: () {
+                      changeProfileImage(context, user);
+                      setState(() {});
+                    },
+                    imageURL: user.imageURL),
+                Text(user.displayName),
+                Text(user.email),
+                Text(user.id),
+              ],
+            ),
           ),
         ),
       ),

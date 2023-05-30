@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:travel_app/services/authentication_service.dart';
 import '../models/post.dart';
 import '../services/post_service.dart';
 import 'package:image_picker/image_picker.dart';
@@ -56,6 +57,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final AuthenticationService authService = Provider.of<AuthenticationService>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Post'),
@@ -121,12 +124,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   await uploadImage(i);
                 }
 
+                final String authorId = authService.getCurrentUserId();
+
                 final post = Post(
                   id: '',
                   title: titleController.text.trim(),
                   description: descriptionController.text.trim(),
                   images: uploadedImageUrls,
-                  authorId: '', // Add the author's user ID here
+                  authorId: authorId, // Add the author's user ID here
                   rating: 0.0,
                   ratings: {},
                 );
