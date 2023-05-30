@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:travel_app/widgets/image_swapper.dart';
 
+import '../widgets/image_swapper.dart';
+import '../widgets/post_card.dart';
 import '../widgets/avatar_button.dart';
 import '../models/user.dart';
+import '../models/post.dart';
 import '../services/authentication_service.dart';
+import '../services/post_service.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -36,6 +39,31 @@ class _ProfileState extends State<Profile> {
                 Text(user.displayName),
                 Text(user.email),
                 Text(user.id),
+                Container(
+                    height: 500,
+                    child: StreamBuilder<List<Post?>>(
+                        stream: context
+                            .read<PostService>()
+                            .getPostsForAuthor(user.id),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            return ListView.builder(
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                print(snapshot.data!);
+                                if (snapshot.data![index] != null) {
+                                  return PostCard(
+                                      post: snapshot.data![index] as Post);
+                                }
+                              },
+                            );
+                          }
+                        })),
               ],
             ),
           ),

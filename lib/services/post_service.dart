@@ -96,4 +96,48 @@ class PostService {
       'rating': post.rating,
     });
   }
+
+  Stream<List<Post?>> getPostsForAuthor(authorId) {
+    return _firestore
+        .collection(Constants.firestoreCollectionPosts)
+        .snapshots()
+        .map((snapshot) {
+      print('Fetched ${snapshot.docs.length} documents from posts collection');
+      return snapshot.docs.map((document) {
+        try {
+          Map<String, double> ratings = {};
+          if (document.data()['ratings'] != null) {
+            Map<String, dynamic> ratingsData = document.data()['ratings'];
+            ratingsData.forEach((key, value) {
+              ratings[key] = value.toDouble();
+            });
+          }
+          print(authorId);
+          print(document.data()['authorId']);
+          if(authorId == document.data()['authorId']){
+            print("ALOOOOOOOOO");
+            return Post(
+              id: document.id,
+              title: document.data()['title'] ?? '',
+              description: document.data()['description'] ?? '',
+              images: document.data()['images'] != null
+                  ? List<String>.from(document.data()['images'])
+                  : [],
+              authorId: document.data()['authorId'] ?? '',
+              rating: document.data()['rating'] != null
+                  ? document.data()['rating'].toDouble()
+                  : 0.0,
+              ratings: ratings,
+            );
+          }
+        } catch (e) {
+          print('Error in converting document to Post: $e');
+          throw e;
+        }
+      }).toList();
+    }).handleError((error) {
+      print('Error in fetching posts: $error');
+      throw error;
+    });
+  }
 }
