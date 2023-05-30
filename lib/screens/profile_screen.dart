@@ -1,46 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:travel_app/widgets/image_swapper.dart';
-
-import '../widgets/avatar_button.dart';
 import '../models/user.dart';
-import '../models/post.dart';
 import '../services/authentication_service.dart';
 import '../services/post_service.dart';
+import '../widgets/post_card.dart';
+import '../models/post.dart';
 
 class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final AuthenticationService authService = Provider.of<AuthenticationService>(context, listen: false);
-    final User user = authService.getCurrentUser()!;
+    final AuthenticationService authService =
+        Provider.of<AuthenticationService>(context, listen: false);
 
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(user!.displayName),
-        ),
-        body: Container(
-          margin: EdgeInsets.symmetric(vertical: 30),
-          child: Center(
-            child: Column(
-              children: [
-                AvatarButton(
-                    onTap: () {
-                      changeProfileImage(context, user);
-                      setState(() {});
+    return FutureBuilder<User>(
+        future: authService.getCurrentUser(),
+        builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // Show loading spinner while waiting for data
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}'); // Handle error case
+          } else {
+            User user = snapshot.data!;
+            return Scaffold(
+              appBar: AppBar(
+                title: Text("Profile"),
+                actions: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/edit-profile');
                     },
-                    imageURL: user.imageURL),
-                Text(user.displayName),
-                Text(user.email),
-                Text(user.id),
-              ],
-            ),
+                  ),
+                ],
+              ),
+              body: ListView(
+                children: <Widget>[
+                  _buildAvatar(context, user),
+                  _buildUserInfo(user, context),
+                ],
+              ),
+            );
+          }
+        });
+  }
+
+  Widget _buildAvatar(BuildContext context, User user) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/view-image');
+      },
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Center(
+          child: CircleAvatar(
+            radius: 50,
+            backgroundImage: NetworkImage(user.imageURL as String),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildUserInfo(User user) {
+  Widget _buildUserInfo(User user, BuildContext context) {
     return Container(
       margin: EdgeInsets.all(20),
       child: Column(
@@ -60,8 +81,16 @@ class Profile extends StatelessWidget {
             subtitle: Text(user.id),
           ),
           Divider(),
+           ElevatedButton(onPressed: () {
+             Navigator.pushNamed(context, '/my-posts');
+           } 
+           , child:
+            Text("My Posts")
+           )
         ],
       ),
     );
   }
+
+  
 }

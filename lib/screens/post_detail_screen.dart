@@ -7,7 +7,7 @@ import '../services/comment_service.dart';
 import '../widgets/comment_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../services/authentication_service.dart';
-
+import '../models/user.dart';
 class PostDetailScreen extends StatelessWidget {
   final Post post;
 
@@ -16,8 +16,17 @@ class PostDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController commentController = TextEditingController();
-  final AuthenticationService authService = Provider.of<AuthenticationService>(context, listen: false);
+final AuthenticationService authService = Provider.of<AuthenticationService>(context, listen: false);
 
+return FutureBuilder<User>(
+  future: authService.getCurrentUser(),
+  builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator(); // Show loading spinner while waiting for data
+    } else if (snapshot.hasError) {
+      return Text('Error: ${snapshot.error}'); // Handle error case
+    } else {
+      User user = snapshot.data!;
     return Scaffold(
       appBar: AppBar(
         title: Text(post.title),
@@ -91,7 +100,7 @@ class PostDetailScreen extends StatelessWidget {
               onPressed: () async {
                 // Assuming you have access to the authorId
                 String authorId = authService.getCurrentUserId();
-                String authorDispName = authService.getCurrentUser()?.displayName ?? '';
+                String authorDispName = user?.displayName ?? '';
 
                 Comment comment = Comment(
                   id: '', // Firestore will auto-generate this
@@ -143,5 +152,8 @@ class PostDetailScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+);
   }
 }

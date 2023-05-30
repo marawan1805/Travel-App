@@ -57,35 +57,51 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final AuthenticationService authService = Provider.of<AuthenticationService>(context, listen: false);
-    final User user = authService.getCurrentUser()!;
+    final AuthenticationService authService =
+        Provider.of<AuthenticationService>(context, listen: false);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Edit Profile"),
-      ),
-      body: ListView(
-        children: <Widget>[
-          if (pickedFile != null)
-            Image.file(
-              File(pickedFile!.path),
-              height: 300,
-              fit: BoxFit.cover,
-            ),
-          ElevatedButton(
-            onPressed: isUploading ? null : pickImage,
-            child: Text("Change Profile Image"),
-          ),
-          ElevatedButton(
-            onPressed: isUploading || imageURL == null ? null : () async {
-              // Update imageURL for user in your database
-              user.imageURL = imageURL!;
-            },
-            child: Text("Save"),
-          ),
-          // Other fields to edit will go here
-        ],
-      ),
-    );
+    return FutureBuilder<User>(
+        future: authService.getCurrentUser(),
+        builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // Show loading spinner while waiting for data
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}'); // Handle error case
+          } else {
+            User user = snapshot.data!;
+            return Scaffold(
+              appBar: AppBar(
+                title: Text("Edit Profile"),
+              ),
+              body: ListView(
+                children: <Widget>[
+                  if (pickedFile != null)
+                    Image.file(
+                      File(pickedFile!.path),
+                      height: 300,
+                      fit: BoxFit.cover,
+                    ),
+                  ElevatedButton(
+                    onPressed: isUploading ? null : pickImage,
+                    child: Text("Change Profile Image"),
+                  ),
+                  ElevatedButton(
+                    onPressed: isUploading || imageURL == null
+                        ? null
+                        : () async {
+                            // Update imageURL for user in your database
+                            await authService.updateUserImage(
+                                user.id, imageURL!);
+
+                            // You need to pop after the update so you go back to the Profile screen
+                            Navigator.pop(context);
+                          },
+                    child: Text("Save"),
+                  ),
+                ],
+              ),
+            );
+          }
+        });
   }
 }

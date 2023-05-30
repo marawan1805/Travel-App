@@ -9,6 +9,8 @@ import 'routes.dart' as app_routes;
 import './services/post_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import './services/authentication_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,8 +37,8 @@ class App extends StatelessWidget {
                 create: (_) => PostService(FirebaseFirestore.instance),
               ),
               Provider<AuthenticationService>(
-                create: (_) =>
-                    AuthenticationService(auth.FirebaseAuth.instance),
+                create: (_) => AuthenticationService(
+                    FirebaseAuth.instance, FirebaseFirestore.instance),
               ),
               Provider<CommentService>(
                 create: (_) => CommentService(FirebaseFirestore.instance),
@@ -59,7 +61,6 @@ class App extends StatelessWidget {
     );
   }
 }
-
 
 class SomethingWentWrong extends StatelessWidget {
   @override

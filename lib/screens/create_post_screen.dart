@@ -7,6 +7,7 @@ import '../services/post_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
+import '../models/user.dart';
 
 class CreatePostScreen extends StatefulWidget {
   @override
@@ -57,7 +58,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AuthenticationService authService = Provider.of<AuthenticationService>(context, listen: false);
+    final AuthenticationService authService =
+        Provider.of<AuthenticationService>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -109,37 +111,49 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               onPressed: pickImages,
               child: Text('Pick Image(s)'),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                if (titleController.text.isEmpty ||
-                    descriptionController.text.isEmpty ||
-                    pickedFiles.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please fill in all fields.')),
+            FutureBuilder<User>(
+              future: authService.getCurrentUser(),
+              builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator(); // Show loading spinner while waiting for data
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}'); // Handle error case
+                } else {
+                  User author = snapshot.data!;
+                  // Now you can use your User data here
+                  return ElevatedButton(
+                    onPressed: () async {
+                      if (titleController.text.isEmpty ||
+                          descriptionController.text.isEmpty ||
+                          pickedFiles.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please fill in all fields.')),
+                        );
+                        return;
+                      }
+
+                      for (var i = 0; i < pickedFiles.length; i++) {
+                        await uploadImage(i);
+                      }
+
+                      final post = Post(
+                        id: '',
+                        title: titleController.text.trim(),
+                        description: descriptionController.text.trim(),
+                        images: uploadedImageUrls,
+                        authorId: author.id,
+                        authorDisplayName: author.displayName,
+                        rating: 0.0,
+                        ratings: {},
+                      );
+                      context.read<PostService>().addPost(post);
+                      Navigator.pop(context);
+                    },
+                    child: Text('Submit'),
                   );
-                  return;
                 }
-
-                for (var i = 0; i < pickedFiles.length; i++) {
-                  await uploadImage(i);
-                }
-
-                final String authorId = authService.getCurrentUserId();
-
-                final post = Post(
-                  id: '',
-                  title: titleController.text.trim(),
-                  description: descriptionController.text.trim(),
-                  images: uploadedImageUrls,
-                  authorId: authorId, // Add the author's user ID here
-                  rating: 0.0,
-                  ratings: {},
-                );
-                context.read<PostService>().addPost(post);
-                Navigator.pop(context);
               },
-              child: Text('Submit'),
-            ),
+            )
           ],
         ),
       ),
