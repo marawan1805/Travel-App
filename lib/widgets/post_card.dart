@@ -70,6 +70,13 @@ class _PostCardState extends State<PostCard> {
                                 ),
                               ),
                               Text(
+                                widget.post.location,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              Text(
                                 'User: ${author.displayName}',
                                 style: TextStyle(
                                   color: Colors.grey,

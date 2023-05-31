@@ -17,6 +17,7 @@ class CreatePostScreen extends StatefulWidget {
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
   String selectedItem = "Choose Category";
 
   List<String> uploadedImageUrls = []; // To store uploaded image URLs
@@ -24,7 +25,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   Future<void> pickImages() async {
     final ImagePicker picker = ImagePicker();
-    final List<XFile>? newFiles = await picker.pickMultiImage(imageQuality: 1);
+    final List<XFile>? newFiles = await picker.pickMultiImage(imageQuality: 10);
 
     if (newFiles != null) {
       setState(() {
@@ -82,6 +83,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               controller: descriptionController,
               decoration: InputDecoration(
                 labelText: 'Description*',
+              ),
+            ),
+            TextField(
+              controller: locationController,
+              decoration: InputDecoration(
+                labelText: 'Location*',
               ),
             ),
             DropdownButton<String>(
@@ -143,7 +150,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   return ElevatedButton(
                     onPressed: () async {
                       if (titleController.text.isEmpty ||
-                          descriptionController.text.isEmpty ||
+                          descriptionController.text.isEmpty || locationController.text.isEmpty ||
                           pickedFiles.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Please fill in all fields.')),
@@ -172,7 +179,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         ratings: {},
                         category:
                             selectedItem, // Assign the selected category
-                        location: '',
+                        location: locationController.text.trim(),
                       );
                       context.read<PostService>().addPost(post);
                       Navigator.pop(context);

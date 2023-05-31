@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/authentication_service.dart';
+import '../screens/home_screen.dart';
 
 class SignupScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -38,13 +39,20 @@ class SignupScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                String message = await context.read<AuthenticationService>().signUp(
-                  email: emailController.text.trim(),
-                  password: passwordController.text.trim(),
-                  displayName: displayNameController.text.trim(),
-                );
-                if (message != "Signed up")
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                String message =
+                    await context.read<AuthenticationService>().signUp(
+                          email: emailController.text.trim(),
+                          password: passwordController.text.trim(),
+                          displayName: displayNameController.text.trim(),
+                        );
+                if (message == "Signed up") {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(message)));
+                  Navigator.of(context).pushReplacementNamed('/');
+                } else {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(message)));
+                }
               },
               child: Text('Sign up'),
             ),
