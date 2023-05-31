@@ -17,6 +17,8 @@ class CreatePostScreen extends StatefulWidget {
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  String selectedItem = "Choose Category";
+
   List<String> uploadedImageUrls = []; // To store uploaded image URLs
   List<XFile> pickedFiles = []; // To store picked Files
 
@@ -60,7 +62,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     final AuthenticationService authService =
         Provider.of<AuthenticationService>(context, listen: false);
-
+    
+     List<String> items = ["Choose Category","Restaurant", "Beach", "Bar", "Local Market", "Hotel", "Museum", "Park", "Landmark", "Other"];
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Post'),
@@ -80,6 +83,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               decoration: InputDecoration(
                 labelText: 'Description*',
               ),
+            ),
+            DropdownButton<String>(
+              
+              onChanged: (_value) {  // update the selectedItem value
+                setState(() {
+                  print(selectedItem);
+                  selectedItem = _value!;
+                  print(selectedItem);
+                });
+              },
+              value: selectedItem,
+              items: items
+                  .map<DropdownMenuItem<String>>((String _value) => DropdownMenuItem<String>(
+                  value: _value, // add this property an pass the _value to it
+                  child: Text(_value,)
+              )).toList(),
             ),
             Wrap(
               spacing: 10,
@@ -131,6 +150,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         );
                         return;
                       }
+                      if(selectedItem == 'Choose Category'){
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please select a category.')),
+                        );
+                        return;
+                      }
 
                       for (var i = 0; i < pickedFiles.length; i++) {
                         await uploadImage(i);
@@ -145,6 +170,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         authorDisplayName: author.displayName,
                         rating: 0.0,
                         ratings: {},
+                        category:
+                            selectedItem, // Assign the selected category
+                        location: '',
                       );
                       context.read<PostService>().addPost(post);
                       Navigator.pop(context);

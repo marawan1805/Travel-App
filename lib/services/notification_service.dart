@@ -1,6 +1,6 @@
 // import 'package:firebase_messaging/firebase_messaging.dart';
 // import 'package:flutter/material.dart';
-
+// import '../screens/post_detail_screen.dart';
 // class NotificationService {
 //   late final FirebaseMessaging _messaging;
 
@@ -46,7 +46,7 @@
 //     if (screen != null && id != null) {
 //       if (screen == 'post_details') {
 //         // Assuming PostDetailsScreen exists and it requires a post id
-//         Navigator.push(context, MaterialPageRoute(builder: (_) => PostDetailsScreen(id: id)));
+//         Navigator.push(context, MaterialPageRoute(builder: (_) => PostDetailScreen(id: id)));
 //       }
 //       // Add more navigation cases based on your needs
 //     }

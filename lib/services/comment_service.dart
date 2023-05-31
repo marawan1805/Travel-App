@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/comment.dart';
 import '../utils/constants.dart';
+  import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CommentService {
   final FirebaseFirestore _firestore;
@@ -28,14 +30,45 @@ class CommentService {
             }).toList());
   }
 
-  Future<void> addComment(Comment comment) {
-    return _firestore.collection(Constants.firestoreCollectionComments).add({
-      'postId': comment.postId,
-      'authorId': comment.authorId,
-      'authorDisplayName': comment
-          .authorDisplayName, // Save the 'authorDisplayName' field in Firestore
-      'content': comment.content,
-      'dateTime': comment.dateTime,
-    });
+
+Future<void> addComment(Comment comment) async {
+  // Fetch the post data from Firestore
+  DocumentSnapshot postSnapshot = await _firestore.collection(Constants.firestoreCollectionPosts).doc(comment.postId).get();
+
+  if (!postSnapshot.exists) {
+    throw Exception('Post not found');
   }
+
+  // Extract the authorId from the post data
+  String postAuthorId = postSnapshot['authorId'];
+
+  // First, add the comment to Firestore
+  await _firestore.collection(Constants.firestoreCollectionComments).add({
+    'postId': comment.postId,
+    'authorId': comment.authorId,
+    'authorDisplayName': comment.authorDisplayName,
+    'content': comment.content,
+    'dateTime': comment.dateTime,
+  });
+
+  // Then, send a request to the Java server to notify about the comment
+  String postTitle = 'someone commented on your post.'; // You need to fetch the post title
+  var response = await http.post(
+      Uri.parse('http://172.20.10.2:3000/notifyComment'),
+      body: jsonEncode({
+        'postTitle': postTitle,
+        'commentContent': comment.content,
+        'postAuthorId': postAuthorId  // Here's the new field
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+  );
+
+  if (response.statusCode != 200) {
+      print('Failed to send notification: ${response.body}');
+  }
+}
+
+
 }

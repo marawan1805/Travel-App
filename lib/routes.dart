@@ -9,6 +9,8 @@ import './screens/create_post_screen.dart';
 import './models/post.dart';
 import './screens/edit_profile_screen.dart';
 import './screens/my_posts_screen.dart';
+import './screens/notifications_screen.dart';
+import './utils/globals.dart';
 
 final Map<String, WidgetBuilder> routes = {
   '/': (context) => HomeScreen(),
@@ -20,4 +22,5 @@ final Map<String, WidgetBuilder> routes = {
   '/account': (context) => Profile(),
   '/edit-profile': (context) => EditProfile(),
   '/my-posts': (context) => MyPostsScreen(),
+  '/notifications': (context) => NotificationsScreen(messages: messageStreamController.stream),
 };

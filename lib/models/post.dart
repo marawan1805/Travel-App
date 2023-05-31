@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class Post {
   final String id;
   final String title;
@@ -7,6 +9,8 @@ class Post {
   final String authorDisplayName;
   final double rating;
   final Map<String, double> ratings;
+  final String category;
+  final String location;
 
   Post({
     required this.id,
@@ -17,5 +21,7 @@ class Post {
     required this.authorDisplayName,
     this.rating = 0.0,
     required this.ratings,
+    required this.category,
+    required this.location,
   });
 }

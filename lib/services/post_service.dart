@@ -64,6 +64,8 @@ class PostService {
                 ? document.data()['rating'].toDouble()
                 : 0.0,
             ratings: ratings,
+            category: document.data()['category'] ?? '',
+            location: document.data()['location'] ?? '',
           );
         } catch (e) {
           print('Error in converting document to Post: $e');
@@ -84,9 +86,13 @@ class PostService {
       'authorId': post.authorId,
       'authorDisplayName': post.authorDisplayName,
       'rating': post.rating,
+      'category': post.category,
+      'location': post.location,
     });
   }
 
+
+ //TODO: add a method to UPDATE posts for a specific author
   Future<void> updatePost(Post post) {
     return _firestore
         .collection(Constants.firestoreCollectionPosts)
@@ -123,6 +129,8 @@ class PostService {
                   ? document.data()['rating'].toDouble()
                   : 0.0,
               ratings: ratings,
+              category: document.data()['category'] ?? '',
+              location: document.data()['location'] ?? '',
             );
           }
         } catch (e) {

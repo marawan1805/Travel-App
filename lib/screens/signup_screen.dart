@@ -43,6 +43,7 @@ class SignupScreen extends StatelessWidget {
                   password: passwordController.text.trim(),
                   displayName: displayNameController.text.trim(),
                 );
+                if (message != "Signed up")
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
               },
               child: Text('Sign up'),

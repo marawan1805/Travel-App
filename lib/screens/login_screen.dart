@@ -32,7 +32,7 @@ class LoginScreen extends StatelessWidget {
                 TextField(
                   controller: emailController,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Email or Username',
                   ),
                 ),
                 TextField(
@@ -46,7 +46,7 @@ class LoginScreen extends StatelessWidget {
                   onPressed: () async {
                     String message =
                         await context.read<AuthenticationService>().signIn(
-                              email: emailController.text.trim(),
+                              emailOrPass: emailController.text.trim(),
                               password: passwordController.text.trim(),
                             );
                     if (message != "Signed in") {

@@ -8,6 +8,7 @@ import '../widgets/comment_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../services/authentication_service.dart';
 import '../models/user.dart';
+
 class PostDetailScreen extends StatelessWidget {
   final Post post;
 
@@ -16,17 +17,9 @@ class PostDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController commentController = TextEditingController();
-final AuthenticationService authService = Provider.of<AuthenticationService>(context, listen: false);
+    final AuthenticationService authService =
+        Provider.of<AuthenticationService>(context, listen: false);
 
-return FutureBuilder<User>(
-  future: authService.getCurrentUser(),
-  builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return CircularProgressIndicator(); // Show loading spinner while waiting for data
-    } else if (snapshot.hasError) {
-      return Text('Error: ${snapshot.error}'); // Handle error case
-    } else {
-      User user = snapshot.data!;
     return Scaffold(
       appBar: AppBar(
         title: Text(post.title),
@@ -73,62 +66,72 @@ return FutureBuilder<User>(
               }).toList(),
             ),
 
-            
+            FutureBuilder<User>(
+              future: authService.getCurrentUser(),
+              builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                ;
+                } else {
+                  User? user = snapshot.data;
+                  final bool isAuthorized = user != null;
+                  return Column(
+                    children: [
+                      if (!isAuthorized)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('You need to login to comment'),
+                        ),
+                      if (isAuthorized)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextField(
+                            controller: commentController,
+                            decoration: InputDecoration(
+                              labelText: 'Add a comment',
+                            ),
+                          ),
+                        ),
+                      if (isAuthorized)
+                        ElevatedButton(
+                          onPressed: () async {
+                            String authorId = authService.getCurrentUserId();
+                            String authorDispName = user.displayName ?? '';
 
-            StreamBuilder(
-              stream: context.watch<AuthenticationService>().authStateChanges,
-              builder: (context, snapshot) {
-                bool isAuthorized = snapshot.data != null;
-                if (!isAuthorized) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('You need to login to comment'),
+                            Comment comment = Comment(
+                              id: '', // Firestore will auto-generate this
+                              postId: post.id,
+                              authorId: authorId,
+                              content: commentController.text,
+                              dateTime: DateTime.now(),
+                              authorDisplayName: authorDispName,
+                            );
+                            if (comment.content.isNotEmpty) {
+                              await context
+                                  .read<CommentService>()
+                                  .addComment(comment);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Comment cannot be empty!'),
+                                ),
+                              );
+                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Comment submitted!'),
+                              ),
+                            );
+                            commentController.clear();
+                          },
+                          child: Text('Submit'),
+                        ),
+                    ],
                   );
                 }
-                return Column(
-                  children: [
-                    Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: commentController,
-                decoration: InputDecoration(
-                  labelText: 'Add a comment',
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Assuming you have access to the authorId
-                String authorId = authService.getCurrentUserId();
-                String authorDispName = user?.displayName ?? '';
-
-                Comment comment = Comment(
-                  id: '', // Firestore will auto-generate this
-                  postId: post.id,
-                  authorId: authorId,
-                  content: commentController.text,
-                  dateTime: DateTime.now(),
-                  authorDisplayName: authorDispName,
-                );
-
-                await context.read<CommentService>().addComment(comment);
-
-                // Show a snackbar on successful comment submission
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Comment submitted!'),
-                  ),
-                );
-
-                // Clear the text field
-                commentController.clear();
-              },
-              child: Text('Submit'),
-            ),
-                  ],
-                );
               },
             ),
+
             StreamBuilder<List<Comment>>(
               stream: context.read<CommentService>().getComments(post.id),
               builder: (context, snapshot) {
@@ -137,12 +140,13 @@ return FutureBuilder<User>(
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
+                  List<Comment> comments = snapshot.data ?? [];
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
-                    itemCount: snapshot.data!.length,
+                    itemCount: comments.length,
                     itemBuilder: (context, index) {
-                      return CommentCard(comment: snapshot.data![index]);
+                      return CommentCard(comment: comments[index]);
                     },
                   );
                 }
@@ -152,8 +156,5 @@ return FutureBuilder<User>(
         ),
       ),
     );
-  }
-}
-);
   }
 }
