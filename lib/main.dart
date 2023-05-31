@@ -51,6 +51,21 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     print('Message notification: ${message.notification?.body}');
   }
 }
+class FirestoreService {
+  final FirebaseFirestore _firestore;
+
+  FirestoreService(this._firestore);
+
+  Future<void> saveNotification(RemoteMessage message) async {
+    // split message content and put in an array
+    var arr = [];
+    
+  }
+
+  Stream<QuerySnapshot> getNotifications() {
+    return _firestore.collection('notifications').orderBy('timestamp', descending: true).snapshots();
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -87,7 +102,21 @@ void main() async {
   }
 
   _messageStreamController.sink.add(message);
+  
+   var arr = message.notification?.body?.split('|') ?? ['hi', 'hi', 'hi'];
+
+  // save the message to Firestore
+  FirebaseFirestore.instance.collection('notifications').add({
+    'title': message.notification?.title,
+      'content': arr[0],
+      'heading': arr[1],
+      'id': arr[2],
+
+      'timestamp': Timestamp.now(),
+  });
+
 });
+
 
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
